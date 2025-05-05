@@ -1,0 +1,126 @@
+Installez PostgreSQL si ce n'est pas fait :
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+Acceder a postgre
+sudo -u postgres psql
+
+# Instructions pour Configurer la Base de Données
+
+Ce projet utilise une base de données PostgreSQL. Voici les étapes pour la configurer sur votre machine :
+
+## Prérequis
+
+* **PostgreSQL doit être installé** sur votre système. Si ce n'est pas le cas, vous pouvez le télécharger et l'installer depuis le site officiel de PostgreSQL : [https://www.postgresql.org/download/](https://www.postgresql.org/download/)
+
+## Étapes d'Installation
+
+1.  **Cloner le dépôt :**
+
+    Si vous ne l'avez pas déjà fait, clonez ce dépôt Git sur votre machine locale :
+
+    ```bash
+    git clone <URL_DU_DEPOT>
+    cd <NOM_DU_DOSSIER_DU_DEPOT>
+    ```
+
+    (Remplacez `<URL_DU_DEPOT>` par l'URL de ce dépôt GitHub et `<NOM_DU_DOSSIER_DU_DEPOT>` par le nom du dossier créé lors du clonage.)
+
+2.  **Importer la base de données :**
+
+    Nous avons inclus un fichier de sauvegarde de la base de données (`telemedicine_dump.sql`) dans ce dépôt. Vous pouvez l'importer en utilisant la commande `psql`. Assurez-vous d'avoir les droits nécessaires pour créer la base de données ou d'avoir une base de données nommée `telemedicine` déjà existante.
+
+    Ouvrez votre terminal et exécutez la commande suivante depuis le répertoire racine du dépôt :
+
+    ```bash
+    psql -U telemed_user -d telemedicine -h localhost -f telemedicine_dump.sql
+    ```
+
+    Il vous sera probablement demandé le mot de passe de l'utilisateur `telemed_user` de votre instance PostgreSQL locale.
+
+    **Alternativement (si un script d'importation `import_db.sh` est inclus) :**
+
+    Si un script nommé `import_db.sh` est présent dans le dépôt, vous pouvez l'exécuter (après l'avoir rendu exécutable si nécessaire) :
+
+    ```bash
+    chmod +x import_db.sh
+    ./import_db.sh
+    ```
+
+    Ce script tentera d'importer automatiquement la base de données.
+
+3.  **Vérification :**
+
+    Après l'importation, vous pouvez vous connecter à la base de données `telemedicine` avec l'utilisateur `telemed_user` pour vérifier que les tables et les données ont été importées correctement :
+
+    ```bash
+    psql -U telemed_user -d telemedicine -h localhost
+    ```
+
+    Vous pouvez ensuite exécuter des requêtes simples comme `SELECT * FROM users;` pour voir les données. Tapez `\q` pour quitter la console `psql`.
+
+## Informations Supplémentaires (Optionnel)
+
+* **Configuration de l'application :** Si votre application nécessite des informations de connexion à la base de données (nom d'utilisateur, mot de passe, nom de la base de données), assurez-vous de configurer correctement les fichiers de configuration de l'application avec les mêmes informations que celles utilisées pour l'importation.
+* **Mises à jour de la base de données :** Si des modifications ultérieures sont apportées à la base de données, des fichiers de dump mis à jour ou des scripts de migration pourront être fournis. Suivez les instructions dans les commits ou la documentation future.
+
+N'hésitez pas à adapter ce modèle avec les informations spécifiques à votre projet et à la manière dont vous souhaitez que vos camarades utilisent la base de données. Inclure ce fichier dans votre dépôt (et le commiter) permettra à tous les collaborateurs d'avoir ces instructions à portée de main. Un fichier `README.md` à la racine du projet est l'endroit le plus courant pour ce type d'informations.
+
+
+SI CA MARCHE ESSAYE DE LE RECREER
+
+CREATE DATABASE telemedicine;
+CREATE USER telemed_user WITH PASSWORD 'telemed2025';
+GRANT ALL PRIVILEGES ON DATABASE telemedicine TO telemed_user;
+\q
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Create the database first if not done:
+-- CREATE DATABASE telemedicine;
+
+-- Create user and grant access (if needed)
+-- CREATE USER telemed_user WITH PASSWORD 'telemed2025';
+-- GRANT ALL PRIVILEGES ON DATABASE telemedicine TO telemed_user;
+
+-- Connect to the database
+\c telemedicine;
+
+-- Table: users
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL CHECK (role IN ('patient', 'doctor', 'admin')),
+    name VARCHAR(255) NOT NULL
+);
+
+-- Table: dicom_files
+CREATE TABLE IF NOT EXISTS dicom_files (
+    id SERIAL PRIMARY KEY,
+    dicom_id VARCHAR(255) NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE
+);
+Installez PostgreSQL si ce n'est pas fait :
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+Acceder a postgre
+sudo -u postgres psql
+
